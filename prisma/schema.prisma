@@ -37,6 +37,7 @@ model Categoria {
   updatedAt     DateTime @updatedAt
   
   subcategorias Subcategoria[]
+  busquedas     Busqueda[]
 }
 
 model Subcategoria {
@@ -51,6 +52,7 @@ model Subcategoria {
   
   categoria     Categoria @relation(fields: [categoriaId], references: [id])
   items         Item[]
+  busquedas     Busqueda[]
 }
 
 model Item {
@@ -65,6 +67,7 @@ model Item {
   
   subcategoria    Subcategoria @relation(fields: [subcategoriaId], references: [id])
   marcas          MarcaItem[]
+  busquedas       Busqueda[]
 }
 
 model Marca {
@@ -78,6 +81,7 @@ model Marca {
   updatedAt   DateTime @updatedAt
   
   items       MarcaItem[]
+  busquedas   Busqueda[]
 }
 
 model MarcaItem {
@@ -99,6 +103,8 @@ model Servicio {
   activo      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  busquedas   Busqueda[]
 }
 
 model Busqueda {
@@ -114,12 +120,12 @@ model Busqueda {
   resultado   Json?
   createdAt   DateTime @default(now())
   
-  usuario     Usuario? @relation(fields: [usuarioId], references: [id])
+  usuario     Usuario?   @relation(fields: [usuarioId], references: [id])
   categoria   Categoria? @relation(fields: [categoriaId], references: [id])
   subcategoria Subcategoria? @relation(fields: [subcategoriaId], references: [id])
-  item        Item? @relation(fields: [itemId], references: [id])
-  servicio    Servicio? @relation(fields: [servicioId], references: [id])
-  marca       Marca? @relation(fields: [marcaId], references: [id])
+  item        Item?      @relation(fields: [itemId], references: [id])
+  servicio    Servicio?  @relation(fields: [servicioId], references: [id])
+  marca       Marca?     @relation(fields: [marcaId], references: [id])
 }
 
 model Favorito {
