@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  nombre    String
+  apellido  String?
+  rol       Rol      @default(USUARIO)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  busquedas Busqueda[]
+  favoritos Favorito[]
+}
+
+enum Rol {
+  USUARIO
+  ADMIN
+  SUPER_ADMIN
+}
+
+model Categoria {
+  id            Int      @id @default(autoincrement())
+  nombre        String   @unique
+  descripcion   String?
+  orden         Int      @default(0)
+  activo        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  subcategorias Subcategoria[]
+}
+
+model Subcategoria {
+  id            Int      @id @default(autoincrement())
+  nombre        String
+  descripcion   String?
+  categoriaId   Int
+  orden         Int      @default(0)
+  activo        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  categoria     Categoria @relation(fields: [categoriaId], references: [id])
+  items         Item[]
+}
+
+model Item {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  descripcion     String?
+  subcategoriaId  Int
+  orden           Int      @default(0)
+  activo          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  subcategoria    Subcategoria @relation(fields: [subcategoriaId], references: [id])
+  marcas          MarcaItem[]
+}
+
+model Marca {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
+  descripcion String?
+  logo        String?
+  sitioWeb    String?
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  items       MarcaItem[]
+}
+
+model MarcaItem {
+  id        Int @id @default(autoincrement())
+  marcaId   Int
+  itemId    Int
+  createdAt DateTime @default(now())
+  
+  marca     Marca @relation(fields: [marcaId], references: [id])
+  item      Item  @relation(fields: [itemId], references: [id])
+  
+  @@unique([marcaId, itemId])
+}
+
+model Servicio {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
+  descripcion String?
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Busqueda {
+  id          Int      @id @default(autoincrement())
+  usuarioId   Int?
+  categoriaId Int?
+  subcategoriaId Int?
+  itemId      Int?
+  servicioId  Int?
+  marcaId     Int?
+  condicion   String?
+  origen      String?
+  resultado   Json?
+  createdAt   DateTime @default(now())
+  
+  usuario     Usuario? @relation(fields: [usuarioId], references: [id])
+  categoria   Categoria? @relation(fields: [categoriaId], references: [id])
+  subcategoria Subcategoria? @relation(fields: [subcategoriaId], references: [id])
+  item        Item? @relation(fields: [itemId], references: [id])
+  servicio    Servicio? @relation(fields: [servicioId], references: [id])
+  marca       Marca? @relation(fields: [marcaId], references: [id])
+}
+
+model Favorito {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int
+  tipo      String
+  itemId    Int?
+  servicioId Int?
+  createdAt DateTime @default(now())
+  
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  
+  @@unique([usuarioId, tipo, itemId, servicioId])
+}
